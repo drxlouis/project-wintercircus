@@ -8,7 +8,7 @@ import { OrbitControls, useGLTF, Sparkles, Html } from "@react-three/drei";
 import { useWindowSize } from "@react-hook/window-size";
 
 function TemboModel({ screenWidth }) {
-  const { scene } = useGLTF("/tembo.glb");
+  const { scene } = useGLTF("./tembo.glb");
   // Schaal tussen 0.0015 (mobiel) en 0.003 (desktop)
   const scale = screenWidth < 600 ? 0.0015 : screenWidth < 900 ? 0.002 : 0.003;
   return (
