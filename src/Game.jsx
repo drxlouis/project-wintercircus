@@ -10,12 +10,12 @@ import { useWindowSize } from "@react-hook/window-size";
 function TemboModel({ screenWidth }) {
   const { scene } = useGLTF("./tembo.glb");
   // Schaal tussen 0.0015 (mobiel) en 0.003 (desktop)
-  const scale = screenWidth < 600 ? 0.0015 : screenWidth < 900 ? 0.002 : 0.003;
+  const scale = screenWidth < 600 ? 0.0015 : screenWidth < 900 ? 100 : 1;
   return (
     <primitive
       object={scene}
       scale={scale}
-      position={[0.5, -1, 0]}
+      position={[0, 0, 0]}
       rotation={[0, 30, 0]}
     />
   );
@@ -159,12 +159,20 @@ function GameScreen() {
     const video = document.getElementById("camera");
     if (navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
-        .getUserMedia({ video: true })
+        .getUserMedia({ video: { facingMode: { exact: "environment" } } })
         .then((stream) => {
           video.srcObject = stream;
         })
         .catch((err) => {
-          console.error("Error accessing camera: ", err);
+          // Fallback to any camera if back camera is not available
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => {
+              video.srcObject = stream;
+            })
+            .catch((err) => {
+              console.error("Error accessing camera: ", err);
+            });
         });
     }
   }, []);
