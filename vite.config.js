@@ -3,11 +3,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  base: "/project-wintercirucs/",
-  root: "src", // Set the root directory to "src"
+  base: "/project-wintercirucs/", // Ensure this matches your GitHub Pages repo name
   plugins: [react()],
   build: {
-    outDir: "../dist", // Adjust output directory since "src" is now the root
+    outDir: "dist",
     assetsDir: "assets",
     rollupOptions: {
       output: {
