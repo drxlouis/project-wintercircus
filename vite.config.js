@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/project-wintercirucs/",
+  base: "/project-wintercircus/",
   build: {
     outDir: "docs",
   },
