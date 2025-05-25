@@ -262,7 +262,7 @@ function GameScreen() {
   }, [bringingGameProgress]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black touch-none">
+    <div className="relative w-full h-screen overflow-hidden bg-red-900 touch-none">
       {showCertificate && <Confetti width={width} height={height} />}
 
       {!showCertificate && !activeMode ? (
