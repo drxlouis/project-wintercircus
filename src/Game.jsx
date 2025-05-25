@@ -10,13 +10,13 @@ import { useWindowSize } from "@react-hook/window-size";
 function TemboModel({ screenWidth }) {
   const { scene } = useGLTF('./tembo.glb');
   // Schaal tussen 0.0015 (mobiel) en 0.003 (desktop)
-  const scale = screenWidth < 600 ? 0.0015 : screenWidth < 900 ? 0.002 : 0.003;
+  const scale = screenWidth < 600 ? 0.15 : screenWidth < 900 ? 0.002 : 0.003;
   return (
     <primitive
       object={scene}
       scale={scale}
-      position={[0.5, -1, 0]}
-      rotation={[0, 30, 0]}
+      position={[0, -0.2, 0]}
+      rotation={[-0.2, 2.7, 0]}
     />
   );
 }
