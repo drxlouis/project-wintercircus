@@ -362,7 +362,8 @@ function GameScreen() {
               <OrbitControls enableZoom={false} enablePan={false} />
             </Canvas>
           </div>
-<div id="task-buttons" className="absolute bottom-20 w-full flex flex-wrap items-center justify-center z-10 pointer-events-auto" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
+          {/* voor mobile safari safe area */}
+          <div id="task-buttons" className="absolute bottom-20 w-full flex flex-wrap items-center justify-center z-10 pointer-events-auto" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
             {tasks.map((task, idx) => (
               <motion.button
                 key={task.id}
