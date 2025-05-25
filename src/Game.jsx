@@ -166,12 +166,27 @@ function GameScreen() {
     const video = document.getElementById("camera");
     if (navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
-        .getUserMedia({ video: true })
+        .getUserMedia({
+          video: {
+            facingMode: { exact: "environment" }
+          }
+        })
         .then((stream) => {
           video.srcObject = stream;
+          video.play();
         })
         .catch((err) => {
-          console.error("Error accessing camera: ", err);
+          // Fallback to any available camera if back camera fails
+          console.error("Back camera not available, trying fallback:", err);
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => {
+              video.srcObject = stream;
+              video.play();
+            })
+            .catch((err) => {
+              console.error("Error accessing any camera:", err);
+            });
         });
     }
   }, []);
