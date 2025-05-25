@@ -14,15 +14,15 @@
   },
   "dependencies": {
     "@react-hook/window-size": "^3.1.1",
-    "@react-three/drei": "^10.0.7",
+    "@react-three/drei": "^10.0.8",
     "@react-three/fiber": "^9.1.2",
     "dotenv": "^16.5.0",
     "env": "^0.0.2",
-    "framer-motion": "^12.9.2",
+    "framer-motion": "^12.12.2",
     "html2canvas": "^1.4.1",
-    "react": "^19.0.0",
+    "react": "^19.1.0",
     "react-confetti": "^6.4.0",
-    "react-dom": "^19.0.0",
+    "react-dom": "^19.1.0",
     "three": "^0.176.0"
   },
   "devDependencies": {

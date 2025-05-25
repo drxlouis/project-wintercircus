@@ -8,14 +8,14 @@ import { OrbitControls, useGLTF, Sparkles, Html } from "@react-three/drei";
 import { useWindowSize } from "@react-hook/window-size";
 
 function TemboModel({ screenWidth }) {
-  const { scene } = useGLTF("./tembo.glb");
+  const { scene } = useGLTF('./tembo.glb');
   // Schaal tussen 0.0015 (mobiel) en 0.003 (desktop)
-  const scale = screenWidth < 600 ? 0.0015 : screenWidth < 900 ? 100 : 1;
+  const scale = screenWidth < 600 ? 0.0015 : screenWidth < 900 ? 0.002 : 0.003;
   return (
     <primitive
       object={scene}
       scale={scale}
-      position={[0, 0, 0]}
+      position={[0.5, -1, 0]}
       rotation={[0, 30, 0]}
     />
   );
@@ -23,9 +23,14 @@ function TemboModel({ screenWidth }) {
 
 function GameScreen() {
   const [tasks, setTasks] = useState([
-    { id: 1, name: "Was Tembo", done: false },
-    { id: 2, name: "Voeder Tembo", done: false },
-    { id: 3, name: "Verzamel voedsel", done: false },
+    { id: 1, name: "Was Tembo", done: false, image: "./sponge.png" },
+    { id: 2, name: "Voeder Tembo", done: false, image: "./food.png" },
+    {
+      id: 3,
+      name: "Verzamel voedsel",
+      done: false,
+      image: "./basket.png",
+    },
   ]);
   const [playerName, setPlayerName] = useState("");
   const [showCertificate, setShowCertificate] = useState(false);
@@ -40,6 +45,7 @@ function GameScreen() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [showSparkles, setShowSparkles] = useState(false);
   const canvasRef = useRef(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const weetjes = [
     "het wintercircus vroeger een grote garage was? Hier stonden toen heel veel auto’s net een museum",
@@ -159,20 +165,12 @@ function GameScreen() {
     const video = document.getElementById("camera");
     if (navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
-        .getUserMedia({ video: { facingMode: { exact: "environment" } } })
+        .getUserMedia({ video: true })
         .then((stream) => {
           video.srcObject = stream;
         })
         .catch((err) => {
-          // Fallback to any camera if back camera is not available
-          navigator.mediaDevices
-            .getUserMedia({ video: true })
-            .then((stream) => {
-              video.srcObject = stream;
-            })
-            .catch((err) => {
-              console.error("Error accessing camera: ", err);
-            });
+          console.error("Error accessing camera: ", err);
         });
     }
   }, []);
@@ -261,20 +259,58 @@ function GameScreen() {
     }
   }, [bringingGameProgress]);
 
+  useEffect(() => {
+    if (allDone) {
+      setShowCertificate(true);
+    }
+  }, [allDone]);
+
+  function resetGame() {
+    setTasks([
+      { id: 1, name: "Was Tembo", done: false, image: "./sponge.png" },
+      { id: 2, name: "Voeder Tembo", done: false, image: "./food.png" },
+      { id: 3, name: "Verzamel voedsel", done: false, image: "./basket.png" },
+    ]);
+    setPlayerName("");
+    setShowCertificate(false);
+    setCleaningProgress(0);
+    setFeedingGameProgress(0);
+    setBringingGameProgress(0);
+
+    // Camera opnieuw starten
+    setTimeout(() => {
+      const video = document.getElementById("camera");
+      if (video && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then((stream) => {
+            video.srcObject = stream;
+          })
+          .catch((err) => {
+            console.error("Error accessing camera: ", err);
+          });
+      }
+    }, 100);
+  }
+
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-red-900 touch-none">
+    <div className="relative w-full h-screen overflow-hidden bg-black touch-none">
       {showCertificate && <Confetti width={width} height={height} />}
+
+      {/* Zet de camera-video HIER, zodat hij altijd zichtbaar is behalve bij certificaat */}
+      {!showCertificate && (
+        <video
+          id="camera"
+          autoPlay
+          playsInline
+          muted
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
 
       {!showCertificate && !activeMode ? (
         <>
-          <video
-            id="camera"
-            autoPlay
-            playsInline
-            muted
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
             <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
               <ambientLight />
               <directionalLight position={[2, 2, 5]} />
@@ -304,7 +340,7 @@ function GameScreen() {
                       transparent
                       opacity={0.7}
                     />
-                    <Html center>
+                    <Html center zIndexRange={[0, 0]} portal={null}>
                       <span
                         style={{
                           color: "white",
@@ -326,18 +362,31 @@ function GameScreen() {
             </Canvas>
           </div>
           <div className="absolute bottom-1 w-full flex flex-wrap items-center justify-center z-10 pointer-events-auto">
-            {tasks.map((task) => (
-              <button
+            {tasks.map((task, idx) => (
+              <motion.button
                 key={task.id}
                 onClick={() => handleTaskClick(task)}
-                className={`px-6 py-3 m-2 rounded-2xl text-xl shadow-md ${
-                  task.done
-                    ? "bg-green-400 text-white"
-                    : "bg-orange-400 text-white"
-                }`}
+                className={`w-20 h-20 m-3 flex items-center justify-center rounded-full shadow-md
+      ${task.done ? "bg-green-400" : "bg-orange-400"}
+    `}
+                initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  delay: idx * 0.1,
+                  type: "spring",
+                  stiffness: 200,
+                }}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ aspectRatio: "1/1", border: "none" }}
               >
-                {task.done ? `✅ ${task.name}` : task.name}
-              </button>
+                <img
+                  src={task.image}
+                  alt={task.name}
+                  className="w-10 h-10 object-contain"
+                  style={{ filter: task.done ? "grayscale(1)" : "none" }}
+                />
+              </motion.button>
             ))}
           </div>
           {allDone && (
@@ -364,6 +413,14 @@ function GameScreen() {
         </>
       ) : activeMode === "cleaning" ? (
         <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50">
+          <button
+            onClick={() => setActiveMode(null)}
+            className="absolute top-4 left-4 z-50 bg-gray-700 bg-opacity-70 hover:bg-gray-900 text-white rounded-full p-3 shadow-lg"
+            aria-label="Terug"
+          >
+            {/* Unicode pijl of SVG */}
+            <span style={{ fontSize: 24 }}>←</span>
+          </button>
           <p className="text-white text-2xl mb-4">Maak Tembo schoon!</p>
           <div className="relative w-64 h-64">
             <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
@@ -392,6 +449,14 @@ function GameScreen() {
         </div>
       ) : activeMode === "feeding" ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-800 bg-opacity-90 z-50">
+          <button
+            onClick={() => setActiveMode(null)}
+            className="absolute top-4 left-4 z-50 bg-gray-700 bg-opacity-70 hover:bg-gray-900 text-white rounded-full p-3 shadow-lg"
+            aria-label="Terug"
+          >
+            {/* Unicode pijl of SVG */}
+            <span style={{ fontSize: 24 }}>←</span>
+          </button>
           <p className="text-3xl text-white mb-4">Voeder Tembo!</p>
 
           <div className="relative w-full h-1/2">
@@ -447,6 +512,14 @@ function GameScreen() {
         </div>
       ) : activeMode === "bringing" ? (
         <div className="absolute inset-0 bg-blue-800 bg-opacity-90 flex flex-col items-center justify-center z-50">
+          <button
+            onClick={() => setActiveMode(null)}
+            className="absolute top-4 left-4 z-50 bg-gray-700 bg-opacity-70 hover:bg-gray-900 text-white rounded-full p-3 shadow-lg"
+            aria-label="Terug"
+          >
+            {/* Unicode pijl of SVG */}
+            <span style={{ fontSize: 24 }}>←</span>
+          </button>
           <p className="text-3xl text-white mb-4">Vang hooi en water!</p>
           <div className="relative w-full h-1/2">
             {fallingItems.map((item) => (
@@ -469,21 +542,55 @@ function GameScreen() {
           <p className="text-white mt-2">{bringingGameProgress}% verzameld</p>
         </div>
       ) : (
-        <div
-          ref={certificateRef}
-          className="w-full max-w-md mx-auto mt-20 bg-yellow-100 p-8 rounded-2xl shadow-2xl text-center space-y-4"
-        >
-          <h2 className="text-3xl font-extrabold text-orange-700">
-            🎖️ Officieel Certificaat 🎖️
-          </h2>
-          <p className="text-lg text-orange-600">Dit certificeert dat</p>
-          <h3 className="text-4xl font-bold text-green-700">{playerName}</h3>
-          <p className="text-lg text-orange-600">
-            met succes Tembo heeft verzorgd!
-          </p>
-          <p className="text-sm text-gray-500">
-            Tembo's Grote Circusavontuur - {new Date().toLocaleDateString()}
-          </p>
+        <div className="flex flex-col justify-center items-center min-h-screen bg-black bg-opacity-80 fixed inset-0 z-50">
+          <div
+            ref={certificateRef}
+            className="w-full max-w-md mx-auto bg-yellow-100 p-8 rounded-2xl shadow-2xl text-center space-y-4"
+          >
+            <h2 className="text-3xl font-extrabold text-orange-700">
+              🎖️ Officieel Certificaat 🎖️
+            </h2>
+            <p className="text-lg text-orange-600">Dit certificeert dat</p>
+            {/* Inputveld mag altijd zichtbaar behalve tijdens downloaden */}
+            {!isDownloading && (
+              <input
+                type="text"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                className="border-2 border-white p-2 rounded-lg text-lg bg-black text-white placeholder-white mb-2"
+                placeholder="Jouw naam"
+              />
+            )}
+            <h3 className="text-4xl font-bold text-green-700">{playerName}</h3>
+            <p className="text-lg text-orange-600">
+              met succes Tembo heeft verzorgd!
+            </p>
+            <p className="text-sm text-gray-500">
+              Tembo's Grote Circusavontuur - {new Date().toLocaleDateString()}
+            </p>
+            {/* Knoppen alleen tonen als NIET aan het downloaden */}
+            {!isDownloading && (
+              <>
+                <button
+                  onClick={async () => {
+                    setIsDownloading(true);
+                    await new Promise((r) => setTimeout(r, 100));
+                    await downloadCertificate();
+                    setIsDownloading(false);
+                  }}
+                  className="mt-4 bg-orange-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-orange-600"
+                >
+                  Download Certificaat
+                </button>
+                <button
+                  onClick={resetGame}
+                  className="mt-4 bg-green-500 text-white px-8 py-4 rounded-2xl text-xl hover:bg-green-600"
+                >
+                  Speel opnieuw
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
       {showCertificate && (
@@ -499,12 +606,12 @@ function GameScreen() {
       {activeWeetje !== null && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60">
           <div className="bg-white rounded-2xl p-8 max-w-xs text-center shadow-xl">
-            <p className="text-lg font-bold text-orange-600 mb-4">
+            <p className="text-xl font-bold text-orange-600 mb-4">
               Wist je dat?
             </p>
             <p className="text-gray-800">{weetjes[activeWeetje]}</p>
             <button
-              className="mt-6 bg-orange-500 text-white px-6 py-2 rounded-xl text-lg hover:bg-orange-600"
+              className="mt-6 bg-orange-500 text-white px-4 py-1 rounded-xl text-sm hover:bg-orange-600"
               onClick={() => setActiveWeetje(null)}
             >
               Sluiten
