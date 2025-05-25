@@ -15,6 +15,7 @@ function TemboModel({ screenWidth }) {
     <primitive
       object={scene}
       scale={scale}
+      // gebruik decimalen voor positie en rotatie!! louis x
       position={[0, -0.2, 0]}
       rotation={[-0.2, 2.7, 0]}
     />
