@@ -15,7 +15,7 @@ function TemboModel({ screenWidth }) {
     <primitive
       object={scene}
       scale={scale}
-      // gebruik decimalen voor positie en rotatie!! louis x
+      // gebruik decimalen voor positie en rotatie!! 
       position={[0, -0.2, 0]}
       rotation={[-0.2, 2.7, 0]}
     />
@@ -354,15 +354,17 @@ function GameScreen() {
                     <meshStandardMaterial
                       color="orange"
                       transparent
-                      opacity={0.7}
+                      opacity={0.5}
                     />
-                    <Html center zIndexRange={[0, 0]} portal={null}>
+                    <Html center zIndexRange={[-1, 0]} portal={null}>
                       <span
                         style={{
                           color: "white",
                           fontWeight: "bold",
                           pointerEvents: "none",
                           textShadow: "0 0 5px #000",
+                          userSelect: "none",
+                          opacity: 0,
                         }}
                       >
                         ?
@@ -443,7 +445,13 @@ function GameScreen() {
             <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
               <ambientLight />
               <directionalLight position={[2, 2, 5]} />
-              <TemboModel />
+              <TemboModel 
+                  position={[0, -0.2, 0]}
+                  rotation={[-0.2, 2.7, 0]}
+                  scale={10}
+                  zIndexRange={[1000, 1000]}
+              
+              />
             </Canvas>
             <canvas
               ref={canvasRef}
@@ -487,7 +495,7 @@ function GameScreen() {
               {/* Onzichtbare "mond"-hitbox */}
               <div
                 id="tembo-mouth"
-                className="absolute top-[90px] left-1/2 transform -translate-x-1/2 w-16 h-16"
+                className="absolute top-[90px] bg-black left-1/2 transform -translate-x-1/2 w-16 h-16"
               />
             </div>
 
