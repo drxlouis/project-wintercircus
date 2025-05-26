@@ -383,6 +383,7 @@ function GameScreen() {
                   onChange={(e) => {
                       // Zet de camera vast als je van as beweegt
                       e.target.object.position.y = 0; // As aanpassen
+                      
                       e.target.object.updateProjectionMatrix();
                   }}
                   />
@@ -440,6 +441,7 @@ function GameScreen() {
           )}
         </>
       ) : activeMode === "cleaning" ? (
+
         <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50">
           <button
             onClick={() => setActiveMode(null)}
@@ -471,6 +473,11 @@ function GameScreen() {
               onTouchStart={() => setIsDrawing(true)}
               onTouchEnd={() => setIsDrawing(false)}
               onTouchMove={handleTouchDraw}
+              style={
+                {
+                  cursor: isDrawing ? 'crosshair' : 'default',
+                }
+              }
             />
           </div>
           <p className="text-white mt-4">{cleaningProgress}% schoon</p>
