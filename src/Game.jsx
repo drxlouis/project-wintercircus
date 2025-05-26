@@ -10,14 +10,14 @@ import { useWindowSize } from "@react-hook/window-size";
 function TemboModel({ screenWidth }) {
   const { scene } = useGLTF('./tembo.glb');
   // Schaal tussen 0.0015 (mobiel) en 0.003 (desktop)
-  const scale = screenWidth < 600 ? 0.15 : screenWidth < 900 ? 0.002 : 0.003;
+  const scale = screenWidth < 600 ? 0.15 : screenWidth < 900 ? 0.15 : screenWidth < 1200 ? 0.2 : 0.25;
   return (
     <primitive
       object={scene}
       scale={scale}
       // gebruik decimalen voor positie en rotatie!! 
-      position={[0, -0.2, 0]}
-      rotation={[-0.2, 2.7, 0]}
+      position={[0, -0.5, 0]}
+      rotation={[0, 2.7, 0]}
     />
   );
 }
@@ -364,10 +364,9 @@ function GameScreen() {
                           pointerEvents: "none",
                           textShadow: "0 0 5px #000",
                           userSelect: "none",
-                          opacity: 0,
+                          opacity: 1,
                         }}
                       >
-                        ?
                       </span>
                     </Html>
                   </mesh>
@@ -376,7 +375,17 @@ function GameScreen() {
                   <Sparkles count={30} scale={2} size={3} color="white" />
                 )}
               </motion.group>
-              <OrbitControls enableZoom={false} enablePan={false} />
+              <OrbitControls
+                  enableZoom={false}  // Keep zoom disabled (or set to true if needed)
+                  enablePan={false}   // Allow panning (but we'll restrict it)
+                  autoRotate={true}
+                  autoRotateSpeed={1.5}
+                  onChange={(e) => {
+                      // Zet de camera vast als je van as beweegt
+                      e.target.object.position.y = 0; // As aanpassen
+                      e.target.object.updateProjectionMatrix();
+                  }}
+                  />
             </Canvas>
           </div>
           {/* voor mobile safari safe area */}
@@ -450,7 +459,7 @@ function GameScreen() {
                   rotation={[-0.2, 2.7, 0]}
                   scale={10}
                   zIndexRange={[1000, 1000]}
-              
+
               />
             </Canvas>
             <canvas
@@ -487,7 +496,10 @@ function GameScreen() {
           <div className="relative w-full h-1/2">
             {/* 3D Tembo model */}
             <div className="relative w-64 h-64 mx-auto">
-              <Canvas camera={{ position: [0, 1.5, 5], fov: 50 }}>
+              <Canvas camera={{ 
+                  position: [0, 1.5, 5], 
+                fov: 50,
+                }}>
                 <ambientLight />
                 <directionalLight position={[2, 2, 5]} />
                 <TemboModel />
@@ -495,7 +507,12 @@ function GameScreen() {
               {/* Onzichtbare "mond"-hitbox */}
               <div
                 id="tembo-mouth"
-                className="absolute top-[90px] bg-black left-1/2 transform -translate-x-1/2 w-16 h-16"
+                className="absolute top-[10px] left-[130px] transform -translate-x-1/2 w-36 h-36"
+                style={{
+                  borderRadius: "50%",
+                  pointerEvents: "none",
+                  opacity: 0.5,
+                }}
               />
             </div>
 
