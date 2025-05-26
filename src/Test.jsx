@@ -9,7 +9,7 @@ const GoogleWebARTest = () => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
     }}>
       <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>WebAR Test</h1>
       

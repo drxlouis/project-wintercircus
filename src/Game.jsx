@@ -475,7 +475,9 @@ function GameScreen() {
               onTouchMove={handleTouchDraw}
               style={
                 {
-                  cursor: isDrawing ? 'crosshair' : 'default',
+                  cursor: isDrawing
+                    ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>🧽</text></svg>") 16 0, auto`
+                    : "auto",
                 }
               }
             />
@@ -575,7 +577,13 @@ function GameScreen() {
               <motion.div
                 key={item.id}
                 className="absolute text-4xl"
-                style={{ top: item.y, left: item.x }}
+                style={{ 
+                  top: item.y, 
+                  left: item.x,
+                  cursor: fallingItems
+                    ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>🧺</text></svg>") 16 0, auto`
+                    : "auto",
+                }}
                 onClick={() => collectItem(item.id)}
               >
                 {item.emoji}
