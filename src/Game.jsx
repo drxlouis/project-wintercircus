@@ -162,7 +162,7 @@ function GameScreen() {
     }
 
     let progress = Math.floor((transparentPixels / totalPixels) * 100);
-    if (progress >= 98) progress = 100;
+    if (progress >= 1) progress = 100;
 
     setCleaningProgress(progress);
   }
@@ -183,7 +183,7 @@ function GameScreen() {
 
   function collectItem(itemId) {
     setFallingItems((prev) => prev.filter((item) => item.id !== itemId));
-    setBringingGameProgress((prev) => Math.min(100, prev + 10));
+    setBringingGameProgress((prev) => Math.min(100, prev + 20));
   }
 
   useEffect(() => {
@@ -339,13 +339,21 @@ function GameScreen() {
     }, 100);
   }
 
-  function share() {
-    if (navigator.share) {
+  async function share() {
+    if (navigator.share && certificateRef.current) {
+      const canvas = await html2canvas(certificateRef.current);
+      const dataUrl = canvas.toDataURL("image/png");
+
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "Tembo_Certificaat.png", { type: "image/png" });
+
+      const filesArray = [file];
+
       navigator
         .share({
           title: "Tembo Certificaat",
           text: `Ik heb mijn Tembo certificaat behaald!`,
-          url: window.location.href,
+          files: filesArray,
         })
         .catch((error) => {
           console.error("Error sharing:", error);
