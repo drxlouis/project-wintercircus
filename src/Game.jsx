@@ -349,15 +349,30 @@ function GameScreen() {
 
       const filesArray = [file];
 
-      navigator
-        .share({
-          title: "Tembo Certificaat",
-          text: `Ik heb mijn Tembo certificaat behaald!`,
-          files: filesArray,
-        })
-        .catch((error) => {
-          console.error("Error sharing:", error);
-        });
+      if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+        navigator
+          .share({
+            title: "Tembo Certificaat",
+            text: `Ik heb mijn Tembo certificaat behaald!`,
+            files: filesArray,
+          })
+          .catch((error) => {
+            console.error("Error sharing:", error);
+          });
+      } else {
+        // Fallback: try sharing without files, or show alert
+        navigator
+          .share({
+            title: "Tembo Certificaat",
+            text: `Ik heb mijn Tembo certificaat behaald!`,
+            url: window.location.href,
+          })
+          .catch((error) => {
+            console.error("Error sharing:", error);
+          });
+        // Optionally, show alert if even this fails
+        alert("Delen van bestanden wordt niet ondersteund op dit apparaat.");
+      }
     } else {
       alert("Delen wordt niet ondersteund op dit apparaat.");
     }
