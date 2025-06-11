@@ -162,9 +162,9 @@ function GameScreen() {
     }
 
     let progress = Math.floor((transparentPixels / totalPixels) * 100);
-    if (progress >= 1) progress = 100;
-
-    setCleaningProgress(progress);
+    if (progress > cleaningProgress) {
+      setCleaningProgress((prev) => Math.min(100, prev + 1)); // Increment by 1% per touch
+    }
   }
 
   function resetCleaning() {
